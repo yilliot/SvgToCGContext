@@ -18,6 +18,7 @@ function main() {
 }
 
 var SGSvg = function(){
+    this.maxX = 0;
     this.lastX = 0;
     this.lastY = 0;
     this.offsetX = 100;
@@ -79,17 +80,25 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
                 }
 
             } else {
+                if (dot.action.toUpperCase()!=='Z') {
+                    throw dot.action+' not handle';
+                }
                 dot.x0 = 0;
                 dot.y0 = 0;
             }
 
             dot.action = dot.action.toUpperCase();
 
-            if (this.offsetX > dot.x0 && dot.x0 !== 0) {
-                this.offsetX = dot.x0;
-            }
-            if (this.offsetY > dot.y0  && dot.y0 !== 0) {
-                this.offsetY = dot.y0;
+            if (dot.action.toUpperCase()!=='Z') {
+                if (this.maxX < dot.x0) {
+                    this.maxX = dot.x0;
+                }
+                if (this.offsetX > dot.x0) {
+                    this.offsetX = dot.x0;
+                }
+                if (this.offsetY > dot.y0) {
+                    this.offsetY = dot.y0;
+                }
             }
 
             this.lastX = dot.x0;
@@ -101,8 +110,8 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
 };
 
 SGSvg.prototype.dotsToObjectiveCLines = function(dots) {
-    this.offsetX = this.offsetX.roundNumber(4);
-    this.offsetY = this.offsetY.roundNumber(4);
+    this.offsetX = this.offsetX.roundNumber(this.nPoint);
+    this.offsetY = this.offsetY.roundNumber(this.nPoint);
     var lines = [];
     for(var i in dots) {
         var dot = dots[i];
@@ -131,7 +140,19 @@ SGSvg.prototype.dotsToObjectiveCLines = function(dots) {
 };
 
 SGSvg.prototype.writeToObjectiveC = function(lines) {
-    var result = "-(void) drawRect:(CGRect)rect {\n"+
+    var result = ""+
+        "@synthesize scale = _scale;\n"+
+        "@synthesize width = _width;\n"+
+        "- (id)initWithFrame:(CGRect)frame\n"+
+        "{\n"+
+        "    self = [super initWithFrame:frame];\n"+
+        "    if (self) {\n"+
+        "        [self setBackgroundColor:[UIColor colorWithWhite:0 alpha:0]];\n"+
+        "        self.width = "+(this.maxX-this.offsetX).roundNumber(this.nPoint)+";\n"+
+        "    }\n"+
+        "    return self;\n"+
+        "}\n"+
+        "-(void) drawRect:(CGRect)rect {\n"+
         "    CGContextRef ctx = UIGraphicsGetCurrentContext();\n"+
         "    CGContextSetRGBFillColor(ctx, 0, 0, 0, 1 );\n"+
         "    //CGContextSetRGBStrokeColor(ctx, 1, 1, 1, 1); \n"+
