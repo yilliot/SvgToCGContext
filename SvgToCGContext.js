@@ -6,9 +6,11 @@ function main() {
     paths['sharp'] = 'M46.464,22.104c-1.141,0.24-2.277,0.465-3.418,0.671c-0.42,0.075-0.182,2.725-0.182,3.016c0,2.233,0,4.467,0,6.701c0,0.06,0.049,0.37-0.043,0.365c-0.271-0.004-1.604,0.062-1.754-0.093c-0.297-0.288,0-4.732,0-5.073c0-1.984,0-2.478,0-4.462c-0.85,0.124-1.695,0.238-2.539,0.336c0-1.135,0-0.776,0-1.911c0-0.181-0.15-0.929,0.109-0.979c0.771-0.153,1.545-0.311,2.32-0.476c0.365-0.078,0.109-2.588,0.109-2.911c0-1.096,0-2.193,0-3.29c-0.85,0.164-1.695,0.331-2.539,0.495c0-1.143,0-0.792,0-1.935c0-0.167-0.137-0.789,0.109-0.844c0.771-0.176,1.545-0.347,2.32-0.511c0.311-0.066,0.109-3.443,0.109-3.694c0-1.483,0-1.472,0-2.954c0-0.442-0.352-1.98,0.326-2.022c0.195-0.017,1.471-0.146,1.471-0.012c0,0.39,0,0.78,0,1.169c0,2.365,0,4.732,0,7.099c1.137-0.241,2.279-0.465,3.416-0.671c0.424-0.075,0.184-2.725,0.184-3.017c0-2.261,0-4.523,0-6.784c0.002-0.681,1.799-0.023,1.799-0.186c0,0.743,0,1.486,0,2.229c0,1.976,0,5.444,0,7.419C49.11,9.653,49.958,9.54,50.8,9.439c0,1.114,0,0.731,0,1.844c0,0.311,0.191,0.759-0.234,0.842c-0.756,0.149-1.514,0.305-2.273,0.467c-0.215,0.045-0.029,2.657-0.029,2.895c0,1.097,0,2.193,0,3.291c0.848-0.203,1.695-0.407,2.537-0.608c0,1.078,0,0.662,0,1.74c0,0.226,0.166,0.929,0,1.132c-0.189,0.234-1.604,0.432-1.947,0.519c-0.426,0.112-0.59,0.051-0.59,0.379c0,0.449,0,2.392,0,2.839c0,1.462,0-0.062,0,1.4c0,0.27,0.186,2.074-0.158,2.095c-0.172,0.016-1.639,0.111-1.641,0.047c0-0.32,0-0.643,0-0.964c0-2.249,0-1.509,0-3.759V22.104z M42.864,19.847c1.041-0.198,2.084-0.401,3.127-0.61c0.754-0.151,0.473-0.559,0.473-1.142c0-1.721,0-3.445,0-5.167c-1.041,0.195-2.084,0.4-3.125,0.608c-0.754,0.151-0.475,0.561-0.475,1.144C42.864,16.402,42.864,18.124,42.864,19.847z';
     paths['bassClef'] = 'M-47.089,46.128c9.131-6.105,14.94-9.484,20.041-18.379c2.193-3.855,3.795-9.37,3.795-13.4c0-3.26-0.179-5.691-1.423-8.062c-1.424-2.728-4.447-4.863-8.361-4.508c-2.607,0.238-5.751,1.188-7.055,2.61c-0.712,0.771-1.364,1.837-1.779,2.728c-0.355,0.771,0,1.956,1.421,2.016c0.536,0,1.722-0.474,2.375-0.534c3.081-0.354,5.631,2.134,5.631,4.803c0,2.61-2.312,5.336-5.988,5.336c-3.794,0-6.996-2.608-7.114-6.345c-0.118-3.972,2.489-8.004,6.166-10.019C-37.425,1.127-33.154,0-31.08,0c3.794,0,7.175,0.652,10.731,3.616c3.559,2.965,4.743,5.397,5.276,10.377c0.771,7.055-5.099,16.305-10.79,20.989c-5.336,4.387-13.519,8.834-20.87,12.391L-47.089,46.128z M-9.321,4.564c1.957,0,3.203,1.602,3.203,3.203c0,1.659-1.246,3.261-3.203,3.261c-2.073,0-3.261-1.602-3.261-3.261C-12.582,6.166-11.395,4.564-9.321,4.564z M-9.321,17.549c1.957,0,3.203,1.601,3.203,3.203c0,1.659-1.246,3.261-3.203,3.261c-2.073,0-3.261-1.602-3.261-3.261C-12.582,19.15-11.395,17.549-9.321,17.549z';
     paths['square'] = 'M26.125,4.304L4.5,5.039L3.509,26.116l24.616,2.25L26.125,4.304z M20.812,22.179L8.125,20.741L9,10.054l11.812-2.688V22.179z';
+
     for(var i in paths)
     {
         var sgSvg = new SGSvg();
+        sgSvg.path = i;
         var lines = sgSvg.parser(paths[i]);
         var dots = sgSvg.linesToNormalizeDots(lines);
         var objectiveCLines = sgSvg.dotsToObjectiveCLines(dots);
@@ -19,11 +21,24 @@ function main() {
 
 var SGSvg = function(){
     this.maxX = 0;
+    this.maxY = 0;
     this.lastX = 0;
     this.lastY = 0;
-    this.offsetX = 100;
-    this.offsetY = 100;
+    this.offsetX = 1000;
+    this.offsetY = 1000;
     this.nPoint = 5;
+    this.extra = 1.5;
+    this.path = '';
+};
+
+SGSvg.prototype.scale = function(s) {
+    var scales = [];
+    scales['bassClef'] = 0.85;
+
+
+    if (typeof(scales[this.path]) !== 'undefined') {
+        return s * scales[this.path];
+    }
 };
 
 SGSvg.prototype.parser = function(svgString) {
@@ -41,6 +56,9 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
         var divider = lines[i].split("%");
         if (divider[0] && divider[1]) {
             var axises = divider[1].split(',');
+            for(var i in axises){
+                axises[i] = this.scale(axises[i]);
+            }
             var dot = {};
             dot.action = divider[0];
 
@@ -93,6 +111,9 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
                 if (this.maxX < dot.x0) {
                     this.maxX = dot.x0;
                 }
+                if (this.maxY < dot.y0) {
+                    this.maxY = dot.y0;
+                }
                 if (this.offsetX > dot.x0) {
                     this.offsetX = dot.x0;
                 }
@@ -110,8 +131,8 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
 };
 
 SGSvg.prototype.dotsToObjectiveCLines = function(dots) {
-    this.offsetX = this.offsetX.roundNumber(this.nPoint);
-    this.offsetY = this.offsetY.roundNumber(this.nPoint);
+    this.offsetX = this.offsetX.roundNumber(this.nPoint) - this.extra;
+    this.offsetY = this.offsetY.roundNumber(this.nPoint) - this.extra;
     var lines = [];
     for(var i in dots) {
         var dot = dots[i];
@@ -140,18 +161,26 @@ SGSvg.prototype.dotsToObjectiveCLines = function(dots) {
 };
 
 SGSvg.prototype.writeToObjectiveC = function(lines) {
-    var result = ""+
+    this.maxX += this.extra;
+    this.maxY += this.extra;
+    var result = "\n"+
         "@synthesize scale = _scale;\n"+
-        "@synthesize width = _width;\n"+
+        "- (id)initWithX:(CGFloat)x y:(CGFloat)y scale:(CGFloat)s\n"+
+        "{\n"+
+        "    self = [self initWithFrame:CGRectMake(x, y, s * "+(this.maxX-this.offsetX).roundNumber(this.nPoint)+", s * "+(this.maxY-this.offsetY).roundNumber(this.nPoint)+")];\n"+
+        "    if (self) {\n"+
+        "        [self setBackgroundColor:[UIColor colorWithWhite:0 alpha:0]];\n"+
+        "        self.scale = s;\n"+
+        "    }\n"+
+        "    return self;\n"+
+        "}\n\n"+
         "- (id)initWithFrame:(CGRect)frame\n"+
         "{\n"+
         "    self = [super initWithFrame:frame];\n"+
         "    if (self) {\n"+
-        "        [self setBackgroundColor:[UIColor colorWithWhite:0 alpha:0]];\n"+
-        "        self.width = "+(this.maxX-this.offsetX).roundNumber(this.nPoint)+";\n"+
         "    }\n"+
         "    return self;\n"+
-        "}\n"+
+        "}\n\n"+
         "-(void) drawRect:(CGRect)rect {\n"+
         "    CGContextRef ctx = UIGraphicsGetCurrentContext();\n"+
         "    CGContextSetRGBFillColor(ctx, 0, 0, 0, 1 );\n"+
@@ -162,9 +191,10 @@ SGSvg.prototype.writeToObjectiveC = function(lines) {
         result += "    "+lines[i]+"\n";
     }
     result += "}\n\n";
-    result += "-(float)scale:(float)s {\n";
+    result += "-(CGFloat)scale:(CGFloat)s {\n";
     result += "    return s * self.scale;\n";
     result += "}\n\n";
+    result += "@end";
     return result;
 };
 
