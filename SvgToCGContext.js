@@ -197,7 +197,7 @@ SGSvg.prototype.writeToObjectiveC = function(lines) {
 
 SGSvg.prototype.writeObjectiveCToFile = function(content, filename) {
     var fs = require('fs');
-    fs.writeFile(filename+".m", content , function(err) {
+    fs.writeFile('objectiveC/'+filename+".m", content , function(err) {
         if(err) {
             console.log(err);
         } else {
