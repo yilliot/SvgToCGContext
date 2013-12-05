@@ -31,16 +31,6 @@ var SGSvg = function(){
     this.path = '';
 };
 
-SGSvg.prototype.scale = function(s) {
-    var scales = [];
-    scales['bassClef'] = 0.85;
-
-
-    if (typeof(scales[this.path]) !== 'undefined') {
-        return s * scales[this.path];
-    }
-};
-
 SGSvg.prototype.parser = function(svgString) {
 
     var processedBassClefPath = svgString.replace(/([a-zA-Z])/g,"|$1%");
@@ -55,10 +45,17 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
 
         var divider = lines[i].split("%");
         if (divider[0] && divider[1]) {
-            var axises = divider[1].split(',');
-            for(var i in axises){
-                axises[i] = this.scale(axises[i]);
-            }
+            $this = this;
+            var axises = [];
+            divider[1].split(',').forEach(function(val,index){
+                var scales = [];
+                scales['bassClef'] = 0.85;
+
+                if (typeof(scales[$this.path]) !== 'undefined') {
+                    axises.push(val * scales[$this.path]);
+                }
+            });
+
             var dot = {};
             dot.action = divider[0];
 
