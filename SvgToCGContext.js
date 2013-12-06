@@ -10,22 +10,22 @@ var SGSvg = function(i){
     this.offsetY = 1000;
     this.nPoint = 5;
     this.extra = 1.5;
-    this.path = i;
+    this.filename = i;
 };
 
 SGSvg.prototype.parser = function(svgString) {
 
-    var processedBassClefPath = svgString.replace(/([a-zA-Z])/g,"|$1%");
-    processedBassClefPath = processedBassClefPath.replace(/(\d)(-)/g,'$1,$2');
-    return processedBassClefPath.split("|");
+    var path = svgString.replace(/([a-zA-Z])/g,"|$1%");
+    path = path.replace(/(\d)(-)/g,'$1,$2');
+    return path.split("|");
 };
 
 SGSvg.prototype.linesToNormalizeDots = function(lines) {
 
     var dots = [];
-    for(var i in lines) {
+    lines.forEach(function(line, index) {
 
-        var divider = lines[i].split("%");
+        var divider = line.split("%");
         if (divider[0] && divider[1]) {
             $this = this;
             var axises = [];
@@ -33,8 +33,8 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
                 var scales = [];
                 scales['bassClef'] = 0.85;
 
-                if (typeof(scales[$this.path]) !== 'undefined') {
-                    axises.push(val * scales[$this.path]);
+                if (typeof(scales[$this.filename]) !== 'undefined') {
+                    axises.push(val * scales[$this.filename]);
                 } else {
                     axises.push(val);
                 }
@@ -107,22 +107,22 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
             this.lastY = dot.y0;
             dots.push(dot);
         }
-    }
+    });
     return dots;
 };
 
 SGSvg.prototype.dotsToObjectiveCLines = function(dots) {
     this.offsetX = helper.roundToFive(this.offsetX) - this.extra;
     this.offsetY = helper.roundToFive(this.offsetY) - this.extra;
+    $this = this;
     var lines = [];
-    for(var i in dots) {
-        var dot = dots[i];
+    dots.forEach(function(dot){
         if (dot.action === 'M') {
-            lines.push('CGContextMoveToPoint(ctx, [self scale:'+helper.roundToFive(dot.x0-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-this.offsetY)+']);');
+            lines.push('CGContextMoveToPoint(ctx, [self scale:'+helper.roundToFive(dot.x0-$this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-$this.offsetY)+']);');
         } else if (dot.action === 'C') {
-            lines.push('CGContextAddCurveToPoint (ctx, [self scale:'+helper.roundToFive(dot.x1-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y1-this.offsetY)+'], [self scale:'+helper.roundToFive(dot.x2-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y2-this.offsetY)+'], [self scale:'+helper.roundToFive(dot.x0-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-this.offsetY)+']);');
+            lines.push('CGContextAddCurveToPoint (ctx, [self scale:'+helper.roundToFive(dot.x1-$this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y1-$this.offsetY)+'], [self scale:'+helper.roundToFive(dot.x2-$this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y2-$this.offsetY)+'], [self scale:'+helper.roundToFive(dot.x0-$this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-$this.offsetY)+']);');
         } else if (dot.action === 'L') {
-            lines.push('CGContextAddLineToPoint(ctx, [self scale:'+helper.roundToFive(dot.x0-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-this.offsetY)+']);');
+            lines.push('CGContextAddLineToPoint(ctx, [self scale:'+helper.roundToFive(dot.x0-$this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-$this.offsetY)+']);');
         } else if (dot.action === 'Z') {
             // lines.push(
             //     "CGContextClosePath (ctx);\n"+
@@ -132,7 +132,7 @@ SGSvg.prototype.dotsToObjectiveCLines = function(dots) {
             //     "    CGContextStrokePath(ctx);\n"
             // );
         }
-    }
+    });
     lines.push(
         "CGContextClosePath (ctx);\n"+
         "    CGContextEOFillPath(ctx);\n"+
@@ -145,6 +145,9 @@ SGSvg.prototype.writeToObjectiveC = function(lines) {
     this.maxX += this.extra;
     this.maxY += this.extra;
     var result = "\n"+
+        "// Generate by SvgToCGContext.js\n\n"+
+        "#import \""+this.filename+".h\"\n\n"+
+        "@implementation "+this.filename+"\n\n"+
         "@synthesize scale = _scale;\n"+
         "- (id)initWithX:(CGFloat)x y:(CGFloat)y scale:(CGFloat)s\n"+
         "{\n"+
@@ -168,9 +171,9 @@ SGSvg.prototype.writeToObjectiveC = function(lines) {
         "    //CGContextSetRGBStrokeColor(ctx, 1, 1, 1, 1); \n"+
         "    CGContextSetLineWidth(ctx, 1);\n";
 
-    for(var i in lines) {
-        result += "    "+lines[i]+"\n";
-    }
+    lines.forEach(function(line){
+        result += "    "+line+"\n";
+    });
     result += "}\n\n";
     result += "-(CGFloat)scale:(CGFloat)s {\n";
     result += "    return s * self.scale;\n";
