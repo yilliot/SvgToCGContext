@@ -1,3 +1,6 @@
+var HelperModule = require('./Helper');
+var helper = new HelperModule.Helper();
+
 var SGSvg = function(i){
     this.maxX = 0;
     this.maxY = 0;
@@ -109,17 +112,17 @@ SGSvg.prototype.linesToNormalizeDots = function(lines) {
 };
 
 SGSvg.prototype.dotsToObjectiveCLines = function(dots) {
-    this.offsetX = this.offsetX.roundNumber(this.nPoint) - this.extra;
-    this.offsetY = this.offsetY.roundNumber(this.nPoint) - this.extra;
+    this.offsetX = helper.roundToFive(this.offsetX) - this.extra;
+    this.offsetY = helper.roundToFive(this.offsetY) - this.extra;
     var lines = [];
     for(var i in dots) {
         var dot = dots[i];
         if (dot.action === 'M') {
-            lines.push('CGContextMoveToPoint(ctx, [self scale:'+(dot.x0-this.offsetX).roundNumber(this.nPoint)+'], [self scale:'+(dot.y0-this.offsetY).roundNumber(this.nPoint)+']);');
+            lines.push('CGContextMoveToPoint(ctx, [self scale:'+helper.roundToFive(dot.x0-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-this.offsetY)+']);');
         } else if (dot.action === 'C') {
-            lines.push('CGContextAddCurveToPoint (ctx, [self scale:'+(dot.x1-this.offsetX).roundNumber(this.nPoint)+'], [self scale:'+(dot.y1-this.offsetY).roundNumber(this.nPoint)+'], [self scale:'+(dot.x2-this.offsetX).roundNumber(this.nPoint)+'], [self scale:'+(dot.y2-this.offsetY).roundNumber(this.nPoint)+'], [self scale:'+(dot.x0-this.offsetX).roundNumber(this.nPoint)+'], [self scale:'+(dot.y0-this.offsetY).roundNumber(this.nPoint)+']);');
+            lines.push('CGContextAddCurveToPoint (ctx, [self scale:'+helper.roundToFive(dot.x1-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y1-this.offsetY)+'], [self scale:'+helper.roundToFive(dot.x2-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y2-this.offsetY)+'], [self scale:'+helper.roundToFive(dot.x0-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-this.offsetY)+']);');
         } else if (dot.action === 'L') {
-            lines.push('CGContextAddLineToPoint(ctx, [self scale:'+(dot.x0-this.offsetX).roundNumber(this.nPoint)+'], [self scale:'+(dot.y0-this.offsetY).roundNumber(this.nPoint)+']);');
+            lines.push('CGContextAddLineToPoint(ctx, [self scale:'+helper.roundToFive(dot.x0-this.offsetX)+'], [self scale:'+helper.roundToFive(dot.y0-this.offsetY)+']);');
         } else if (dot.action === 'Z') {
             // lines.push(
             //     "CGContextClosePath (ctx);\n"+
@@ -145,7 +148,7 @@ SGSvg.prototype.writeToObjectiveC = function(lines) {
         "@synthesize scale = _scale;\n"+
         "- (id)initWithX:(CGFloat)x y:(CGFloat)y scale:(CGFloat)s\n"+
         "{\n"+
-        "    self = [self initWithFrame:CGRectMake(x, y, s * "+(this.maxX-this.offsetX).roundNumber(this.nPoint)+", s * "+(this.maxY-this.offsetY).roundNumber(this.nPoint)+")];\n"+
+        "    self = [self initWithFrame:CGRectMake(x, y, s * "+helper.roundToFive(this.maxX-this.offsetX)+", s * "+helper.roundToFive(this.maxY-this.offsetY)+")];\n"+
         "    if (self) {\n"+
         "        [self setBackgroundColor:[UIColor colorWithWhite:0 alpha:0]];\n"+
         "        self.scale = s;\n"+
@@ -187,8 +190,4 @@ SGSvg.prototype.writeObjectiveCToFile = function(content, filename) {
     });
 }
 
-Number.prototype.roundNumber = function(digits) {
-    var multiple = Math.pow(10, digits);
-    return Math.round(this * multiple) / multiple;
-}
 exports.SGSvg = SGSvg;
